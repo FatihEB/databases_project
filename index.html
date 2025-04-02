@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to BookSmart App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        button {
+            width: 200px;
+            padding: 12px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .customer-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+            .customer-btn:hover {
+                background-color: #45a049;
+            }
+
+        .employee-btn {
+            background-color: #007BFF;
+            color: white;
+        }
+
+            .employee-btn:hover {
+                background-color: #0069d9;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the BookSmart App!</h1>
+        <button class="customer-btn" onclick="window.location.href='booking.html'">I am a Customer</button>
+        <button class="employee-btn" onclick="window.location.href='employee_dashboard.php'">I am an Employee</button>
+    </div>
+</body>
+</html>

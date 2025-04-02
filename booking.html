@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Room Search & Booking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f4f8;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+
+        .logout-btn, .views-btn {
+            margin-top: 20px;
+            background-color: #dc3545;
+        }
+
+        .views-btn {
+            background-color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <h1>Search & Book a Room</h1>
+    <form action="search_rooms.php" method="GET">
+        <label for="checkin">Check-in Date:</label>
+        <input type="date" id="checkin" name="checkin" required>
+
+        <label for="checkout">Check-out Date:</label>
+        <input type="date" id="checkout" name="checkout" required>
+
+        <label for="capacity">Room Capacity:</label>
+        <select id="capacity" name="capacity">
+            <option value="">Any</option>
+            <option value="1">Single</option>
+            <option value="2">Double</option>
+            <option value="3">Triple</option>
+            <option value="4">Suite</option>
+        </select>
+
+        <label for="area">Area (City):</label>
+        <select id="area" name="area">
+            <option value="">Any</option>
+            <option value="New York">New York</option>
+            <option value="Chicago">Chicago</option>
+            <option value="Miami">Miami</option>
+            <option value="Denver">Denver</option>
+        </select>
+
+        <label for="chain">Hotel Chain:</label>
+        <select id="chain" name="chain">
+            <option value="">Any</option>
+            <option value="Luxury Stays International">Luxury Stays International</option>
+            <option value="Comfort Inn Group">Comfort Inn Group</option>
+            <option value="Seaside Resorts">Seaside Resorts</option>
+            <option value="Mountain View Hotels">Mountain View Hotels</option>
+        </select>
+
+        <label for="category">Hotel Category (Stars):</label>
+        <select id="category" name="category">
+            <option value="">Any</option>
+            <option value="1">1 Star</option>
+            <option value="2">2 Stars</option>
+            <option value="3">3 Stars</option>
+            <option value="4">4 Stars</option>
+            <option value="5">5 Stars</option>
+        </select>
+
+        <label>Price Range:</label>
+        <input type="number" name="min_price" placeholder="Min Price">
+        <input type="number" name="max_price" placeholder="Max Price">
+
+        <button type="submit">Search Rooms</button>
+
+        <button type="button" class="views-btn" onclick="window.location.href='rooms_by_area.php'">
+            View: Available Rooms by Area
+        </button>
+
+        <button type="button" class="views-btn" onclick="window.location.href='hotel_capacity.php'">
+            View: Total Room Capacity per Hotel
+        </button>
+
+        <button type="button" class="logout-btn" onclick="window.location.href='index.html'">Logout</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,94 @@
+USE ehotel;
+
+-- Insert Hotel Chains
+INSERT INTO hotel_chain (name, central_office_address, number_of_hotels, email, phone_number) VALUES
+('Luxury Stays International', '123 Corporate Drive, New York, NY', 8, 'contact@luxurystays.com', '+1-212-555-0101'),
+('Comfort Inn Group', '456 Business Ave, Chicago, IL', 10, 'info@comfortinn.com', '+1-312-555-0202'),
+('Seaside Resorts', '789 Beach Road, Miami, FL', 8, 'hello@seasideresorts.com', '+1-305-555-0303'),
+('Mountain View Hotels', '321 Alpine Way, Denver, CO', 9, 'info@mountainview.com', '+1-303-555-0404'),
+('City Central Hotels', '555 Metro Square, Los Angeles, CA', 8, 'contact@citycentralhotels.com', '+1-213-555-0505');
+
+-- Insert Hotels (sample for first 2 chains)
+INSERT INTO hotel (name, address, rating, number_of_rooms, email, phone_number, chain_id) VALUES
+-- Luxury Stays
+('Luxury Stays NYC Downtown', '100 Wall Street, New York, NY', 5, 50, 'nyc.downtown@luxurystays.com', '+1-212-555-1001', 1),
+('Luxury Stays NYC Midtown', '200 Park Avenue, New York, NY', 5, 60, 'nyc.midtown@luxurystays.com', '+1-212-555-1002', 1),
+('Luxury Stays Boston', '300 Boylston St, Boston, MA', 5, 45, 'boston@luxurystays.com', '+1-617-555-1003', 1),
+('Luxury Stays Miami', '400 Ocean Drive, Miami, FL', 5, 55, 'miami@luxurystays.com', '+1-305-555-1004', 1),
+('Luxury Stays LA', '500 Beverly Hills Dr, Los Angeles, CA', 5, 65, 'la@luxurystays.com', '+1-213-555-1005', 1),
+('Luxury Stays Chicago', '600 Michigan Ave, Chicago, IL', 5, 40, 'chicago@luxurystays.com', '+1-312-555-1006', 1),
+('Luxury Stays San Francisco', '700 Market St, San Francisco, CA', 5, 45, 'sf@luxurystays.com', '+1-415-555-1007', 1),
+('Luxury Stays Las Vegas', '800 Strip Ave, Las Vegas, NV', 5, 70, 'vegas@luxurystays.com', '+1-702-555-1008', 1),
+
+-- Comfort Inn
+('Comfort Inn Chicago Loop', '100 State St, Chicago, IL', 4, 80, 'loop@comfortinn.com', '+1-312-555-2001', 2),
+('Comfort Inn Chicago North', '200 North Ave, Chicago, IL', 4, 75, 'north@comfortinn.com', '+1-312-555-2002', 2);
+
+-- Insert Employees (Managers first)
+INSERT INTO employee (name, address, sin, role, email) VALUES
+('John Smith', '123 Manager Lane, New York, NY', '111111111', 'Manager', 'john.smith@luxurystays.com'),
+('Emma Johnson', '456 Leader Ave, New York, NY', '111111112', 'Manager', 'emma.johnson@luxurystays.com');
+
+-- Insert Rooms for Hotel 1 (Luxury Stays NYC Downtown)
+INSERT INTO room (room_number, price, capacity, view_type, amenities, extendable, hotel_id) VALUES
+('101', 200.00, 2, 'City View', 'WiFi, TV, Mini-bar', TRUE, 1),
+('102', 250.00, 3, 'Mountain View', 'WiFi, TV, Mini-bar, Sofa', FALSE, 1),
+('103', 300.00, 4, 'Sea View', 'WiFi, TV, Mini-bar, Kitchen', TRUE, 1),
+('201', 350.00, 5, 'Mountain View', 'WiFi, TV, Mini-bar, Kitchen, Living Room', TRUE, 1),
+('202', 400.00, 6, 'Sea View', 'WiFi, TV, Mini-bar, Kitchen, Living Room, Balcony', TRUE, 1);
+
+-- Insert Customers
+INSERT INTO customer (sin, name, address, date_of_registration) VALUES
+('123456789', 'Alice Brown', '123 Customer St, New York, NY', '2025-01-01'),
+('987654321', 'Bob Wilson', '456 Guest Ave, Chicago, IL', '2025-01-02');
+
+-- Insert Booking (use separate start and end dates instead of tsrange)
+INSERT INTO booking (start_date, end_date, status, sin, room_id, employee_id) VALUES
+('2025-04-01', '2025-04-05', 'Confirmed', '123456789', 1, 1);
+
+-- Insert Work Relationships
+INSERT INTO works_for (employee_id, hotel_id) VALUES (1, 1), (2, 2);
+
+-- Insert Manager Relationships
+INSERT INTO runs (employee_id, hotel_id) VALUES (1, 1), (2, 2);
+
+-- Insert More Customers
+INSERT INTO customer (sin, name, address, date_of_registration) VALUES
+('123456790', 'Carol Davis', '789 Guest St, Boston, MA', '2025-01-03'),
+('123456791', 'Daniel Evans', '321 Tourist Rd, Miami, FL', '2025-01-04'),
+('123456792', 'Eve Foster', '654 Visitor Ave, Denver, CO', '2025-01-05'),
+('123456793', 'Frank Green', '987 Travel St, LA, CA', '2025-01-06');
+
+-- Insert More Bookings (converted from tsrange)
+INSERT INTO booking (start_date, end_date, status, sin, room_id, employee_id) VALUES
+('2025-04-10', '2025-04-15', 'Confirmed', '123456790', 2, 1),
+('2025-04-20', '2025-04-25', 'Pending', '123456791', 3, 1),
+('2025-05-01', '2025-05-05', 'Confirmed', '123456792', 4, 1),
+('2025-05-10', '2025-05-15', 'Confirmed', '123456793', 5, 1);
+
+-- Insert into Books table
+INSERT INTO books (sin, booking_id, room_id) VALUES
+('123456790', 2, 2),
+('123456791', 3, 3),
+('123456792', 4, 4),
+('123456793', 5, 5);
+
+-- Insert Rentings
+INSERT INTO renting (check_in_date, check_out_date, sin, room_id, employee_id, booking_id) VALUES
+('2025-04-01', '2025-04-05', '123456789', 1, 1, 1),
+('2025-04-10', '2025-04-15', '123456790', 2, 1, 2);
+
+-- Insert into Rents table
+INSERT INTO rents (sin, renting_id, room_id) VALUES
+('123456789', 1, 1),
+('123456790', 2, 2);
+
+-- Insert Archives
+INSERT INTO archive (booking_id, renting_id) VALUES
+(1, 1),
+(2, 2);
+
+-- Stored_as links
+INSERT INTO stored_as (archive_id, booking_id, renting_id) VALUES
+(1, 1, 1),
+(2, 2, 2);

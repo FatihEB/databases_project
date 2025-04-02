@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Manage Hotel</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            background: #6c757d;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        section {
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0.5rem;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select,
+        textarea {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: fit-content;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0.5rem 0;
+        }
+
+        .insert-btn {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .search-btn {
+            background: #007bff;
+            color: #fff;
+        }
+
+        .update-btn {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .table-container {
+            margin-top: 1rem;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #f0f0f0;
+        }
+
+        .logout-btn {
+            background: #6c757d;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Manage Hotel Data</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Manage Hotels</h2>
+            <form action="hotel_actions.php" method="POST">
+                <input type="hidden" name="action" value="insertHotel" />
+                <div class="form-group">
+                    <label for="hotelName">Hotel Name:</label>
+                    <input type="text" name="name" id="hotelName" placeholder="Hotel Name" required />
+                </div>
+                <div class="form-group">
+                    <label for="hotelAddress">Address:</label>
+                    <textarea name="address" id="hotelAddress" rows="2" placeholder="Hotel Address"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="hotelRating">Rating (1-5):</label>
+                    <input type="number" name="rating" id="hotelRating" min="1" max="5" required />
+                </div>
+                <div class="form-group">
+                    <label for="hotelRooms">Number of Rooms:</label>
+                    <input type="number" name="number_of_rooms" id="hotelRooms" placeholder="Total Rooms" required />
+                </div>
+                <div class="form-group">
+                    <label for="hotelEmail">Email:</label>
+                    <input type="text" name="email" id="hotelEmail" placeholder="hotel@domain.com" required />
+                </div>
+                <div class="form-group">
+                    <label for="hotelPhone">Phone Number:</label>
+                    <input type="text" name="phone_number" id="hotelPhone" placeholder="+1-xxx-xxx-xxxx" required />
+                </div>
+                <div class="form-group">
+                    <label for="chainId">Chain ID:</label>
+                    <input type="number" name="chain_id" id="chainId" placeholder="1" required />
+                </div>
+                <button class="insert-btn" type="submit">Insert Hotel</button>
+            </form>
+            <h3>Update/Delete Hotel</h3>
+            <form action="hotel_actions.php" method="POST">
+                <input type="hidden" name="action" value="updateHotel" />
+                <div class="form-group">
+                    <label for="updateHotelId">Hotel ID:</label>
+                    <input type="number" name="hotel_id" id="updateHotelId" required />
+                </div>
+                <div class="form-group">
+                    <label for="updateHotelRating">New Rating (1-5):</label>
+                    <input type="number" name="rating" id="updateHotelRating" min="1" max="5" />
+                </div>
+                <div class="form-group">
+                    <label for="updateHotelRooms">New Number of Rooms:</label>
+                    <input type="number" name="number_of_rooms" id="updateHotelRooms" />
+                </div>
+                <button class="update-btn" type="submit">Update Hotel</button>
+            </form>
+
+            <form action="hotel_actions.php" method="POST">
+                <input type="hidden" name="action" value="deleteHotel" />
+                <div class="form-group">
+                    <label for="deleteHotelId">Hotel ID to Delete:</label>
+                    <input type="number" name="hotel_id" id="deleteHotelId" required />
+                </div>
+                <button class="delete-btn" type="submit">Delete Hotel</button>
+            </form>
+
+
+            <button class="search-btn" onclick="loadHotels()">Show/Refresh Hotels</button>
+            <div class="table-container" id="hotelTableContainer"></div>
+        </section>
+
+        <hr />
+
+        <section>
+            <h2>Manage Rooms</h2>
+            <form action="hotel_actions.php" method="POST">
+                <input type="hidden" name="action" value="insertRoom" />
+                <div class="form-group">
+                    <label for="roomHotelId">Hotel ID:</label>
+                    <input type="number" name="hotel_id" id="roomHotelId" required />
+                </div>
+                <div class="form-group">
+                    <label for="roomNumber">Room Number:</label>
+                    <input type="text" name="room_number" id="roomNumber" placeholder="e.g. 101" required />
+                </div>
+                <div class="form-group">
+                    <label for="roomPrice">Price (per night):</label>
+                    <input type="number" step="0.01" name="price" id="roomPrice" required />
+                </div>
+                <div class="form-group">
+                    <label for="roomCapacity">Capacity:</label>
+                    <input type="number" name="capacity" id="roomCapacity" required />
+                </div>
+                <div class="form-group">
+                    <label for="viewType">View Type:</label>
+                    <select name="view_type" id="viewType">
+                        <option value="No View">No View</option>
+                        <option value="Sea View">Sea View</option>
+                        <option value="Mountain View">Mountain View</option>
+                        <option value="City View">City View</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="amenities">Amenities:</label>
+                    <textarea name="amenities" id="amenities" rows="2" placeholder="e.g. WiFi, TV, Mini-bar" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="extendable">Extendable:</label>
+                    <select name="extendable" id="extendable">
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="damages">Damages:</label>
+                    <textarea name="damages" id="damages" rows="2" placeholder="Any damages?"></textarea>
+                </div>
+                <button class="insert-btn" type="submit">Insert Room</button>
+            </form>
+
+            <button class="search-btn" onclick="loadRooms()">Show/Refresh Rooms</button>
+            <div class="table-container" id="roomTableContainer"></div>
+        </section>
+
+        <hr />
+
+        <section>
+            <h2>Manage Employees</h2>
+            <form action="hotel_actions.php" method="POST">
+                <input type="hidden" name="action" value="insertEmployee" />
+                <div class="form-group">
+                    <label for="empName">Employee Name:</label>
+                    <input type="text" name="name" id="empName" required />
+                </div>
+                <div class="form-group">
+                    <label for="empAddress">Address:</label>
+                    <textarea name="address" id="empAddress" rows="2" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="empSin">SIN:</label>
+                    <input type="text" name="sin" id="empSin" required />
+                </div>
+                <div class="form-group">
+                    <label for="empRole">Role:</label>
+                    <input type="text" name="role" id="empRole" placeholder="e.g. Manager, Front Desk, etc." required />
+                </div>
+                <div class="form-group">
+                    <label for="empEmail">Email:</label>
+                    <input type="text" name="email" id="empEmail" required />
+                </div>
+                <button class="insert-btn" type="submit">Insert Employee</button>
+            </form>
+
+            <button class="search-btn" onclick="loadEmployees()">Show/Refresh Employees</button>
+            <div class="table-container" id="employeeTableContainer"></div>
+        </section>
+
+        <hr />
+        <button class="logout-btn" onclick="window.location.href='employee_dashboard.php'">
+            Back to Employee Dashboard
+        </button>
+    </main>
+
+    <script>
+
+
+  async function loadHotels() {
+    const container = document.getElementById('hotelTableContainer');
+    container.innerHTML = 'Loading...';
+
+    try {
+      const resp = await fetch('hotel_actions.php?action=listHotels');
+      const html = await resp.text();
+      container.innerHTML = html;
+    } catch (err) {
+      container.innerHTML = '<p style="color:red;">Error loading hotels</p>';
+    }
+  }
+
+  async function loadRooms() {
+    const container = document.getElementById('roomTableContainer');
+    container.innerHTML = 'Loading...';
+
+    try {
+      const resp = await fetch('hotel_actions.php?action=listRooms');
+      const html = await resp.text();
+      container.innerHTML = html;
+    } catch (err) {
+      container.innerHTML = '<p style="color:red;">Error loading rooms</p>';
+    }
+  }
+
+  async function loadEmployees() {
+    const container = document.getElementById('employeeTableContainer');
+    container.innerHTML = 'Loading...';
+
+    try {
+      const resp = await fetch('hotel_actions.php?action=listEmployees');
+      const html = await resp.text();
+      container.innerHTML = html;
+    } catch (err) {
+      container.innerHTML = '<p style="color:red;">Error loading employees</p>';
+    }
+        }
+
+    </script>
+
+</body>
+</html>

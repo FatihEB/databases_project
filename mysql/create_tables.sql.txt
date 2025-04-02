@@ -1,0 +1,249 @@
+-- Drop tables if they exist (order matters due to foreign key dependencies)
+DROP TABLE IF EXISTS stored_as;
+DROP TABLE IF EXISTS rents;
+DROP TABLE IF EXISTS books;
+DROP TABLE IF EXISTS registers;
+DROP TABLE IF EXISTS renting;
+DROP TABLE IF EXISTS booking;
+DROP TABLE IF EXISTS room;
+DROP TABLE IF EXISTS employee;
+DROP TABLE IF EXISTS runs;
+DROP TABLE IF EXISTS works_for;
+DROP TABLE IF EXISTS hotel;
+DROP TABLE IF EXISTS hotel_chain;
+DROP TABLE IF EXISTS customer;
+
+-- Create Hotel Chain table
+CREATE TABLE hotel_chain (
+    chain_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    central_office_address TEXT NOT NULL,
+    number_of_hotels INT NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    phone_number VARCHAR(20) NOT NULL,
+    CHECK (number_of_hotels >= 0),
+    CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'),
+    CHECK (phone_number REGEXP '^\\+?[0-9\\s\\-\\(\\)]+$')
+) ENGINE=InnoDB;
+
+-- Create Hotel table
+CREATE TABLE hotel (
+    hotel_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    address TEXT NOT NULL,
+    rating INT,
+    number_of_rooms INT NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    phone_number VARCHAR(20) NOT NULL,
+    chain_id INT NOT NULL,
+    CHECK (rating BETWEEN 1 AND 5),
+    CHECK (number_of_rooms >= 0),
+    CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'),
+    CHECK (phone_number REGEXP '^\\+?[0-9\\s\\-\\(\\)]+$'),
+    FOREIGN KEY (chain_id) REFERENCES hotel_chain(chain_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Create Employee table
+CREATE TABLE employee (
+    employee_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    address TEXT NOT NULL,
+    sin VARCHAR(9) NOT NULL UNIQUE,
+    role VARCHAR(50) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$')
+) ENGINE=InnoDB;
+
+-- Create Works_For relationship table
+CREATE TABLE works_for (
+    employee_id INT,
+    hotel_id INT,
+    PRIMARY KEY (employee_id, hotel_id),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+    FOREIGN KEY (hotel_id) REFERENCES hotel(hotel_id)
+) ENGINE=InnoDB;
+
+-- Create Runs relationship (for managers)
+CREATE TABLE runs (
+    employee_id INT,
+    hotel_id INT,
+    PRIMARY KEY (employee_id, hotel_id),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+    FOREIGN KEY (hotel_id) REFERENCES hotel(hotel_id)
+) ENGINE=InnoDB;
+
+-- Create Room table
+CREATE TABLE room (
+    room_id INT AUTO_INCREMENT PRIMARY KEY,
+    room_number VARCHAR(10) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    capacity INT NOT NULL,
+    view_type VARCHAR(50),
+    amenities TEXT NOT NULL,
+    extendable BOOLEAN DEFAULT FALSE,
+    damages TEXT,
+    hotel_id INT NOT NULL,
+    UNIQUE KEY unique_room (hotel_id, room_number),
+    CHECK (price > 0),
+    CHECK (capacity > 0),
+    CHECK (view_type IN ('Sea View', 'City View', 'Mountain View', 'No View')),
+    FOREIGN KEY (hotel_id) REFERENCES hotel(hotel_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+
+-- Create Customer table (without CHECK)
+CREATE TABLE customer (
+    sin VARCHAR(9) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    address TEXT NOT NULL,
+    date_of_registration DATE NOT NULL
+) ENGINE=InnoDB;
+
+
+-- Create Booking table
+-- Replacing PostgreSQL's TSRANGE with separate start_date and end_date columns.
+CREATE TABLE booking (
+    booking_id INT AUTO_INCREMENT PRIMARY KEY,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    sin VARCHAR(9),
+    room_id INT,
+    employee_id INT,
+    CHECK (status IN ('Confirmed', 'Pending', 'Cancelled', 'Completed')),
+    FOREIGN KEY (sin) REFERENCES customer(sin),
+    FOREIGN KEY (room_id) REFERENCES room(room_id),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id)
+) ENGINE=InnoDB;
+
+-- Create Renting table
+CREATE TABLE renting (
+    renting_id INT AUTO_INCREMENT PRIMARY KEY,
+    check_in_date DATE NOT NULL,
+    check_out_date DATE NOT NULL,
+    sin VARCHAR(9),
+    room_id INT,
+    employee_id INT,
+    booking_id INT,
+    payment_status VARCHAR(20) DEFAULT 'Unpaid',
+    CHECK (check_out_date > check_in_date),
+    FOREIGN KEY (sin) REFERENCES customer(sin),
+    FOREIGN KEY (room_id) REFERENCES room(room_id),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+    FOREIGN KEY (booking_id) REFERENCES booking(booking_id)
+) ENGINE=InnoDB;
+
+-- Create Registers relationship table
+CREATE TABLE registers (
+    employee_id INT,
+    booking_id INT,
+    renting_id INT,
+    PRIMARY KEY (employee_id, booking_id, renting_id),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+    FOREIGN KEY (booking_id) REFERENCES booking(booking_id),
+    FOREIGN KEY (renting_id) REFERENCES renting(renting_id)
+) ENGINE=InnoDB;
+
+-- Create Books relationship table
+CREATE TABLE books (
+    sin VARCHAR(9),
+    booking_id INT,
+    room_id INT,
+    PRIMARY KEY (sin, booking_id, room_id),
+    FOREIGN KEY (sin) REFERENCES customer(sin),
+    FOREIGN KEY (booking_id) REFERENCES booking(booking_id),
+    FOREIGN KEY (room_id) REFERENCES room(room_id)
+) ENGINE=InnoDB;
+
+-- Create Rents relationship table
+CREATE TABLE rents (
+    sin VARCHAR(9),
+    renting_id INT,
+    room_id INT,
+    PRIMARY KEY (sin, renting_id, room_id),
+    FOREIGN KEY (sin) REFERENCES customer(sin),
+    FOREIGN KEY (renting_id) REFERENCES renting(renting_id),
+    FOREIGN KEY (room_id) REFERENCES room(room_id)
+) ENGINE=InnoDB;
+
+-- Create Archive table
+CREATE TABLE archive (
+    archive_id INT AUTO_INCREMENT PRIMARY KEY,
+    booking_id INT,
+    renting_id INT
+) ENGINE=InnoDB;
+
+-- Create Stored_As relationship table
+-- Using default values (0) for booking_id and renting_id when not applicable.
+CREATE TABLE stored_as (
+    archive_id INT,
+    booking_id INT DEFAULT 0,
+    renting_id INT DEFAULT 0,
+    PRIMARY KEY (archive_id, booking_id, renting_id),
+    FOREIGN KEY (archive_id) REFERENCES archive(archive_id)
+) ENGINE=InnoDB;
+
+-- [*] The following constraints use subqueries; MySQL does not support subqueries in CHECK constraints.
+-- Consider enforcing these rules via triggers instead.
+-- ALTER TABLE employee ADD CONSTRAINT manager_role CHECK (...);
+-- ALTER TABLE renting ADD CONSTRAINT no_damaged_rooms CHECK (...);
+
+-- Add trigger to ensure booking start_date is not in the past
+DELIMITER $$
+CREATE TRIGGER booking_dates_check_before_insert
+BEFORE INSERT ON booking
+FOR EACH ROW
+BEGIN
+    IF NEW.start_date < CURRENT_DATE() THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Booking start date cannot be in the past';
+    END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER booking_dates_check_before_update
+BEFORE UPDATE ON booking
+FOR EACH ROW
+BEGIN
+    IF NEW.start_date < CURRENT_DATE() THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Booking start date cannot be in the past';
+    END IF;
+END$$
+DELIMITER ;
+
+-- Add indexes for better query performance
+CREATE INDEX idx_hotel_chain_id ON hotel(chain_id);
+CREATE INDEX idx_room_hotel_id ON room(hotel_id);
+CREATE INDEX idx_booking_sin ON booking(sin);
+CREATE INDEX idx_booking_room_id ON booking(room_id);
+CREATE INDEX idx_renting_sin ON renting(sin);
+CREATE INDEX idx_renting_room_id ON renting(room_id);
+
+DELIMITER $$
+
+CREATE TRIGGER customer_date_registration_before_insert
+BEFORE INSERT ON customer
+FOR EACH ROW
+BEGIN
+    IF NEW.date_of_registration > CURDATE() THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Registration date cannot be in the future';
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER customer_date_registration_before_update
+BEFORE UPDATE ON customer
+FOR EACH ROW
+BEGIN
+    IF NEW.date_of_registration > CURDATE() THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Registration date cannot be in the future';
+    END IF;
+END$$
+
+DELIMITER ;
+

@@ -1,0 +1,9 @@
+-- Create the database if it doesn't exist
+CREATE DATABASE IF NOT EXISTS ehotel;
+
+-- Select the database
+USE ehotel;
+
+-- PostgreSQL extension for UUIDs is not needed in MySQL,
+-- so we omit the following line:
+-- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
