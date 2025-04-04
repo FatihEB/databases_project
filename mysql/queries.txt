@@ -1,0 +1,30 @@
+1. repeat bookers
+
+SELECT 
+    c.name AS customer_name,
+    h.name AS hotel_name,
+    COUNT(*) AS number_of_bookings,
+    MIN(b.start_date) AS first_booking,
+    MAX(b.start_date) AS last_booking
+FROM customer c
+JOIN booking b ON b.sin = c.sin
+JOIN room r ON r.room_id = b.room_id
+JOIN hotel h ON h.hotel_id = r.hotel_id
+GROUP BY c.sin, c.name, h.hotel_id, h.name
+HAVING COUNT(*) > 1
+ORDER BY number_of_bookings DESC;
+
+
+2. average room price
+
+SELECT 
+    hc.name AS chain_name,
+    COUNT(r.room_id) AS total_rooms,
+    ROUND(AVG(r.price), 2) AS average_room_price,
+    MIN(r.price) AS lowest_price,
+    MAX(r.price) AS highest_price
+FROM hotel_chain hc
+JOIN hotel h ON h.chain_id = hc.chain_id
+JOIN room r ON r.hotel_id = h.hotel_id
+GROUP BY hc.chain_id, hc.name
+ORDER BY average_room_price DESC;

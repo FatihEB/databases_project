@@ -110,7 +110,7 @@ CREATE TABLE booking (
     sin VARCHAR(9),
     room_id INT,
     employee_id INT,
-    CHECK (status IN ('Confirmed', 'Pending', 'Cancelled', 'Completed')),
+    CHECK (status IN ('Pending', 'Cancelled', 'Completed')),
     FOREIGN KEY (sin) REFERENCES customer(sin),
     FOREIGN KEY (room_id) REFERENCES room(room_id),
     FOREIGN KEY (employee_id) REFERENCES employee(employee_id)

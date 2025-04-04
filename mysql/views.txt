@@ -1,0 +1,22 @@
+CREATE OR REPLACE VIEW available_rooms_per_area AS
+SELECT 
+    h.address AS area,
+    COUNT(r.room_id) AS available_rooms
+FROM room r
+JOIN hotel h ON r.hotel_id = h.hotel_id
+LEFT JOIN booking b ON r.room_id = b.room_id 
+    AND b.status IN ('Pending', 'Confirmed')
+LEFT JOIN renting rent ON r.room_id = rent.room_id 
+    AND rent.check_out_date >= CURDATE()
+WHERE b.booking_id IS NULL AND rent.renting_id IS NULL
+GROUP BY h.address;
+
+
+CREATE OR REPLACE VIEW total_room_capacity_per_hotel AS
+SELECT 
+    h.hotel_id,
+    h.name AS hotel_name,
+    SUM(r.capacity) AS total_capacity
+FROM hotel h
+JOIN room r ON h.hotel_id = r.hotel_id
+GROUP BY h.hotel_id, h.name;

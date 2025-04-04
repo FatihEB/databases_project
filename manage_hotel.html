@@ -39,6 +39,11 @@
             margin-top: 0;
         }
 
+        h3 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
         form {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -130,8 +135,10 @@
     </header>
 
     <main>
+        <!-- Hotels Section -->
         <section>
             <h2>Manage Hotels</h2>
+            <!-- Insert Hotel Form -->
             <form action="hotel_actions.php" method="POST">
                 <input type="hidden" name="action" value="insertHotel" />
                 <div class="form-group">
@@ -140,7 +147,7 @@
                 </div>
                 <div class="form-group">
                     <label for="hotelAddress">Address:</label>
-                    <textarea name="address" id="hotelAddress" rows="2" placeholder="Hotel Address"></textarea>
+                    <textarea name="address" id="hotelAddress" rows="2" placeholder="Hotel Address" required></textarea>
                 </div>
                 <div class="form-group">
                     <label for="hotelRating">Rating (1-5):</label>
@@ -164,7 +171,8 @@
                 </div>
                 <button class="insert-btn" type="submit">Insert Hotel</button>
             </form>
-            <h3>Update/Delete Hotel</h3>
+            <!-- Update Hotel Form -->
+            <h3>Update Hotel</h3>
             <form action="hotel_actions.php" method="POST">
                 <input type="hidden" name="action" value="updateHotel" />
                 <div class="form-group">
@@ -181,7 +189,7 @@
                 </div>
                 <button class="update-btn" type="submit">Update Hotel</button>
             </form>
-
+            <!-- Delete Hotel Form -->
             <form action="hotel_actions.php" method="POST">
                 <input type="hidden" name="action" value="deleteHotel" />
                 <div class="form-group">
@@ -190,16 +198,16 @@
                 </div>
                 <button class="delete-btn" type="submit">Delete Hotel</button>
             </form>
-
-
             <button class="search-btn" onclick="loadHotels()">Show/Refresh Hotels</button>
             <div class="table-container" id="hotelTableContainer"></div>
         </section>
 
         <hr />
 
+        <!-- Rooms Section -->
         <section>
             <h2>Manage Rooms</h2>
+            <!-- Insert Room Form -->
             <form action="hotel_actions.php" method="POST">
                 <input type="hidden" name="action" value="insertRoom" />
                 <div class="form-group">
@@ -244,15 +252,66 @@
                 </div>
                 <button class="insert-btn" type="submit">Insert Room</button>
             </form>
-
+            <!-- Update Room Form -->
+            <h3>Update Room</h3>
+            <form action="hotel_actions.php" method="POST">
+                <input type="hidden" name="action" value="updateRoom" />
+                <div class="form-group">
+                    <label for="updateRoomId">Room ID:</label>
+                    <input type="number" name="room_id" id="updateRoomId" required />
+                </div>
+                <div class="form-group">
+                    <label for="updateRoomPrice">New Price (per night):</label>
+                    <input type="number" step="0.01" name="price" id="updateRoomPrice" />
+                </div>
+                <div class="form-group">
+                    <label for="updateRoomCapacity">New Capacity:</label>
+                    <input type="number" name="capacity" id="updateRoomCapacity" />
+                </div>
+                <div class="form-group">
+                    <label for="updateRoomView">New View Type:</label>
+                    <select name="view_type" id="updateRoomView">
+                        <option value="">--Select--</option>
+                        <option value="No View">No View</option>
+                        <option value="Sea View">Sea View</option>
+                        <option value="Mountain View">Mountain View</option>
+                        <option value="City View">City View</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="updateRoomAmenities">New Amenities:</label>
+                    <textarea name="amenities" id="updateRoomAmenities" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="updateRoomExtendable">Extendable (0 or 1):</label>
+                    <input type="number" name="extendable" id="updateRoomExtendable" min="0" max="1" />
+                </div>
+                <div class="form-group">
+                    <label for="updateRoomDamages">Damages:</label>
+                    <textarea name="damages" id="updateRoomDamages" rows="2"></textarea>
+                </div>
+                <button class="update-btn" type="submit">Update Room</button>
+            </form>
+            <!-- Delete Room Form -->
+            <h3>Delete Room</h3>
+            <form action="hotel_actions.php" method="POST">
+                <input type="hidden" name="action" value="deleteRoom" />
+                <div class="form-group">
+                    <label for="deleteRoomId">Room ID to Delete:</label>
+                    <input type="number" name="room_id" id="deleteRoomId" required />
+                </div>
+                <button class="delete-btn" type="submit">Delete Room</button>
+            </form>
             <button class="search-btn" onclick="loadRooms()">Show/Refresh Rooms</button>
             <div class="table-container" id="roomTableContainer"></div>
         </section>
 
         <hr />
 
+        <!-- Employees Section -->
         <section>
             <h2>Manage Employees</h2>
+            <!-- Insert Employee Form -->
             <form action="hotel_actions.php" method="POST">
                 <input type="hidden" name="action" value="insertEmployee" />
                 <div class="form-group">
@@ -277,7 +336,34 @@
                 </div>
                 <button class="insert-btn" type="submit">Insert Employee</button>
             </form>
-
+            <!-- Update Employee Form -->
+            <h3>Update Employee</h3>
+            <form action="hotel_actions.php" method="POST">
+                <input type="hidden" name="action" value="updateEmployee" />
+                <div class="form-group">
+                    <label for="updateEmployeeId">Employee ID:</label>
+                    <input type="number" name="employee_id" id="updateEmployeeId" required />
+                </div>
+                <div class="form-group">
+                    <label for="updateEmployeeRole">New Role:</label>
+                    <input type="text" name="role" id="updateEmployeeRole" />
+                </div>
+                <div class="form-group">
+                    <label for="updateEmployeeEmail">New Email:</label>
+                    <input type="email" name="email" id="updateEmployeeEmail" />
+                </div>
+                <button class="update-btn" type="submit">Update Employee</button>
+            </form>
+            <!-- Delete Employee Form -->
+            <h3>Delete Employee</h3>
+            <form action="hotel_actions.php" method="POST">
+                <input type="hidden" name="action" value="deleteEmployee" />
+                <div class="form-group">
+                    <label for="deleteEmployeeId">Employee ID to Delete:</label>
+                    <input type="number" name="employee_id" id="deleteEmployeeId" required />
+                </div>
+                <button class="delete-btn" type="submit">Delete Employee</button>
+            </form>
             <button class="search-btn" onclick="loadEmployees()">Show/Refresh Employees</button>
             <div class="table-container" id="employeeTableContainer"></div>
         </section>
@@ -289,47 +375,41 @@
     </main>
 
     <script>
-
-
-  async function loadHotels() {
-    const container = document.getElementById('hotelTableContainer');
-    container.innerHTML = 'Loading...';
-
-    try {
-      const resp = await fetch('hotel_actions.php?action=listHotels');
-      const html = await resp.text();
-      container.innerHTML = html;
-    } catch (err) {
-      container.innerHTML = '<p style="color:red;">Error loading hotels</p>';
-    }
-  }
-
-  async function loadRooms() {
-    const container = document.getElementById('roomTableContainer');
-    container.innerHTML = 'Loading...';
-
-    try {
-      const resp = await fetch('hotel_actions.php?action=listRooms');
-      const html = await resp.text();
-      container.innerHTML = html;
-    } catch (err) {
-      container.innerHTML = '<p style="color:red;">Error loading rooms</p>';
-    }
-  }
-
-  async function loadEmployees() {
-    const container = document.getElementById('employeeTableContainer');
-    container.innerHTML = 'Loading...';
-
-    try {
-      const resp = await fetch('hotel_actions.php?action=listEmployees');
-      const html = await resp.text();
-      container.innerHTML = html;
-    } catch (err) {
-      container.innerHTML = '<p style="color:red;">Error loading employees</p>';
-    }
+        async function loadHotels() {
+            const container = document.getElementById('hotelTableContainer');
+            container.innerHTML = 'Loading...';
+            try {
+                const resp = await fetch('hotel_actions.php?action=listHotels');
+                const html = await resp.text();
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = '<p style="color:red;">Error loading hotels</p>';
+            }
         }
 
+        async function loadRooms() {
+            const container = document.getElementById('roomTableContainer');
+            container.innerHTML = 'Loading...';
+            try {
+                const resp = await fetch('hotel_actions.php?action=listRooms');
+                const html = await resp.text();
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = '<p style="color:red;">Error loading rooms</p>';
+            }
+        }
+
+        async function loadEmployees() {
+            const container = document.getElementById('employeeTableContainer');
+            container.innerHTML = 'Loading...';
+            try {
+                const resp = await fetch('hotel_actions.php?action=listEmployees');
+                const html = await resp.text();
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = '<p style="color:red;">Error loading employees</p>';
+            }
+        }
     </script>
 
 </body>

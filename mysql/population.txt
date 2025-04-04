@@ -39,12 +39,12 @@ INSERT INTO room (room_number, price, capacity, view_type, amenities, extendable
 
 -- Insert Customers
 INSERT INTO customer (sin, name, address, date_of_registration) VALUES
-('123456789', 'Alice Brown', '123 Customer St, New York, NY', '2025-01-01'),
-('987654321', 'Bob Wilson', '456 Guest Ave, Chicago, IL', '2025-01-02');
+('123456789', 'Alice Brown', '123 Customer St, New York, NY', '2024-01-01'),
+('987654321', 'Bob Wilson', '456 Guest Ave, Chicago, IL', '2024-01-02');
 
 -- Insert Booking (use separate start and end dates instead of tsrange)
 INSERT INTO booking (start_date, end_date, status, sin, room_id, employee_id) VALUES
-('2025-04-01', '2025-04-05', 'Confirmed', '123456789', 1, 1);
+('2026-04-01', '2026-04-05', 'Completed', '123456789', 1, 1);
 
 -- Insert Work Relationships
 INSERT INTO works_for (employee_id, hotel_id) VALUES (1, 1), (2, 2);
@@ -54,17 +54,17 @@ INSERT INTO runs (employee_id, hotel_id) VALUES (1, 1), (2, 2);
 
 -- Insert More Customers
 INSERT INTO customer (sin, name, address, date_of_registration) VALUES
-('123456790', 'Carol Davis', '789 Guest St, Boston, MA', '2025-01-03'),
-('123456791', 'Daniel Evans', '321 Tourist Rd, Miami, FL', '2025-01-04'),
-('123456792', 'Eve Foster', '654 Visitor Ave, Denver, CO', '2025-01-05'),
-('123456793', 'Frank Green', '987 Travel St, LA, CA', '2025-01-06');
+('123456790', 'Carol Davis', '789 Guest St, Boston, MA', '2024-01-03'),
+('123456791', 'Daniel Evans', '321 Tourist Rd, Miami, FL', '2024-01-04'),
+('123456792', 'Eve Foster', '654 Visitor Ave, Denver, CO', '2024-01-05'),
+('123456793', 'Frank Green', '987 Travel St, LA, CA', '2024-01-06');
 
 -- Insert More Bookings (converted from tsrange)
 INSERT INTO booking (start_date, end_date, status, sin, room_id, employee_id) VALUES
-('2025-04-10', '2025-04-15', 'Confirmed', '123456790', 2, 1),
-('2025-04-20', '2025-04-25', 'Pending', '123456791', 3, 1),
-('2025-05-01', '2025-05-05', 'Confirmed', '123456792', 4, 1),
-('2025-05-10', '2025-05-15', 'Confirmed', '123456793', 5, 1);
+('2026-04-10', '2026-04-15', 'Completed', '123456790', 2, 1),
+('2026-04-20', '2026-04-25', 'Pending', '123456791', 3, 1),
+('2026-05-01', '2026-05-05', 'Pending', '123456792', 4, 1),
+('2026-05-10', '2026-05-15', 'Pending', '123456793', 5, 1);
 
 -- Insert into Books table
 INSERT INTO books (sin, booking_id, room_id) VALUES
@@ -75,8 +75,8 @@ INSERT INTO books (sin, booking_id, room_id) VALUES
 
 -- Insert Rentings
 INSERT INTO renting (check_in_date, check_out_date, sin, room_id, employee_id, booking_id) VALUES
-('2025-04-01', '2025-04-05', '123456789', 1, 1, 1),
-('2025-04-10', '2025-04-15', '123456790', 2, 1, 2);
+('2026-04-01', '2026-04-05', '123456789', 1, 1, 1),
+('2026-04-10', '2026-04-15', '123456790', 2, 1, 2);
 
 -- Insert into Rents table
 INSERT INTO rents (sin, renting_id, room_id) VALUES

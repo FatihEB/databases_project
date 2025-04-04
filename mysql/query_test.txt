@@ -1,0 +1,2 @@
+INSERT INTO customer (sin, name, address, date_of_registration)
+VALUES ('987654321', 'Future Tester', '123 Future Lane', '2030-01-01');

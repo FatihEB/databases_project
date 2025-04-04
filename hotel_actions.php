@@ -1,7 +1,6 @@
 <?php
 // hotel_actions.php
-// Provides CREATE and READ operations for hotels, rooms, employees
-// Expand as needed for UPDATE/DELETE
+// Provides CREATE, READ, UPDATE, and DELETE operations for hotels, rooms, and employees
 
 $mysqli = new mysqli("localhost", "root", "", "ehotel");
 if ($mysqli->connect_errno) {
@@ -48,14 +47,12 @@ switch ($action) {
     case 'deleteEmployee':
         deleteEmployee($mysqli);
         break;
-
     default:
         echo "<p style='color:red;'>Unknown action: $action</p>";
         break;
 }
 
 $mysqli->close();
-
 
 function insertHotel($mysqli) {
     $name            = $_POST['name'] ?? '';
@@ -91,7 +88,7 @@ function listHotels($mysqli) {
         die("<p style='color:red;'>Error fetching hotels: " . $mysqli->error . "</p>");
     }
 
-    echo "<table>";
+    echo "<table border='1' cellspacing='0' cellpadding='5'>";
     echo "<tr>
             <th>Hotel ID</th>
             <th>Name</th>
@@ -157,7 +154,7 @@ function listRooms($mysqli) {
         die("<p style='color:red;'>Error fetching rooms: " . $mysqli->error . "</p>");
     }
 
-    echo "<table>";
+    echo "<table border='1' cellspacing='0' cellpadding='5'>";
     echo "<tr>
             <th>Room ID</th>
             <th>Hotel ID</th>
@@ -220,7 +217,7 @@ function listEmployees($mysqli) {
         die("<p style='color:red;'>Error fetching employees: " . $mysqli->error . "</p>");
     }
 
-    echo "<table>";
+    echo "<table border='1' cellspacing='0' cellpadding='5'>";
     echo "<tr>
             <th>Employee ID</th>
             <th>Name</th>
@@ -242,6 +239,7 @@ function listEmployees($mysqli) {
     echo "</table>";
     $result->free();
 }
+
 function updateHotel($mysqli) {
     $hotel_id = $_POST['hotel_id'] ?? '';
     $rating = $_POST['rating'] ?? null;
@@ -281,38 +279,82 @@ function updateHotel($mysqli) {
 
 function deleteHotel($mysqli) {
     $hotel_id = $_POST['hotel_id'] ?? '';
-    if (!$hotel_id) die("Missing Hotel ID");
+    if (!$hotel_id) {
+        die("Missing Hotel ID");
+    }
 
+    // First, delete all rooms associated with this hotel
+    $stmt_rooms = $mysqli->prepare("DELETE FROM room WHERE hotel_id = ?");
+    $stmt_rooms->bind_param("i", $hotel_id);
+    if (!$stmt_rooms->execute()) {
+        die("<p style='color:red;'>Error deleting rooms: " . $stmt_rooms->error . "</p>");
+    }
+    $stmt_rooms->close();
+
+    // Then, delete the hotel record
     $stmt = $mysqli->prepare("DELETE FROM hotel WHERE hotel_id = ?");
     $stmt->bind_param("i", $hotel_id);
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        die("<p style='color:red;'>Error deleting hotel: " . $stmt->error . "</p>");
+    }
+    $stmt->close();
 
-    echo "<p style='color:green;'>Hotel deleted.</p><a href='manage_hotel.html'>Back</a>";
+    echo "<p style='color:green;'>Hotel and its associated rooms have been deleted.</p><a href='manage_hotel.html'>Back</a>";
 }
 
 function updateRoom($mysqli) {
     $room_id = $_POST['room_id'] ?? '';
+    // Allow updating of price, capacity, view type, amenities, extendable flag, and damages
     $price = $_POST['price'] ?? null;
     $capacity = $_POST['capacity'] ?? null;
+    $view_type = $_POST['view_type'] ?? null;
+    $amenities = $_POST['amenities'] ?? null;
+    $extendable = $_POST['extendable'] ?? null;
+    $damages = $_POST['damages'] ?? null;
 
-    if (!$room_id || (!$price && !$capacity)) {
-        die("<p style='color:red;'>Room ID and at least one field required.</p>");
+    if (!$room_id) {
+        die("<p style='color:red;'>Room ID is required.</p>");
     }
-
+    
     $sql = "UPDATE room SET ";
     $fields = [];
     $params = [];
     $types = "";
 
-    if ($price !== null) {
+    if ($price !== null && $price !== '') {
         $fields[] = "price = ?";
         $params[] = $price;
         $types .= "d";
     }
-    if ($capacity !== null) {
+    if ($capacity !== null && $capacity !== '') {
         $fields[] = "capacity = ?";
         $params[] = $capacity;
         $types .= "i";
+    }
+    if ($view_type !== null && $view_type !== '') {
+        $fields[] = "view_type = ?";
+        $params[] = $view_type;
+        $types .= "s";
+    }
+    if ($amenities !== null && $amenities !== '') {
+        $fields[] = "amenities = ?";
+        $params[] = $amenities;
+        $types .= "s";
+    }
+    if ($extendable !== null && $extendable !== '') {
+        $fields[] = "extendable = ?";
+        $params[] = $extendable;
+        $types .= "i";
+    }
+    if ($damages !== null) {
+        // damages can be set to NULL explicitly
+        $fields[] = "damages = ?";
+        $params[] = $damages;
+        $types .= "s";
+    }
+    
+    if (empty($fields)) {
+        die("<p style='color:red;'>At least one field must be provided to update the room.</p>");
     }
 
     $sql .= implode(", ", $fields) . " WHERE room_id = ?";
@@ -320,46 +362,115 @@ function updateRoom($mysqli) {
     $types .= "i";
 
     $stmt = $mysqli->prepare($sql);
+    if (!$stmt) {
+        die("<p style='color:red;'>Prepare failed: " . $mysqli->error . "</p>");
+    }
     $stmt->bind_param($types, ...$params);
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        die("<p style='color:red;'>Error updating room: " . $stmt->error . "</p>");
+    }
+    $stmt->close();
 
     echo "<p style='color:green;'>Room updated successfully.</p><a href='manage_hotel.html'>Back</a>";
 }
 
 function deleteRoom($mysqli) {
     $room_id = $_POST['room_id'] ?? '';
-    if (!$room_id) die("Missing Room ID");
-
+    if (!$room_id) {
+        die("<p style='color:red;'>Missing Room ID</p>");
+    }
+    
+    // 1. Delete from registers (child of renting)
+    $stmt = $mysqli->prepare("
+        DELETE FROM registers
+        WHERE renting_id IN (
+            SELECT renting_id FROM (SELECT renting_id FROM renting WHERE booking_id IN (
+                SELECT booking_id FROM booking WHERE room_id = ?
+            )) AS t
+        )
+    ");
+    $stmt->bind_param("i", $room_id);
+    if (!$stmt->execute()) {
+        die("<p style='color:red;'>Error deleting registers: " . $stmt->error . "</p>");
+    }
+    $stmt->close();
+    
+    // 2. Delete from books (child of booking)
+    $stmt = $mysqli->prepare("
+        DELETE FROM books 
+        WHERE booking_id IN (
+            SELECT booking_id FROM (SELECT booking_id FROM booking WHERE room_id = ?) AS t
+        )
+    ");
+    $stmt->bind_param("i", $room_id);
+    if (!$stmt->execute()) {
+        die("<p style='color:red;'>Error deleting from books: " . $stmt->error . "</p>");
+    }
+    $stmt->close();
+    
+    // 3. Delete renting records for bookings referencing this room
+    $stmt = $mysqli->prepare("
+        DELETE FROM renting 
+        WHERE booking_id IN (
+            SELECT booking_id FROM (SELECT booking_id FROM booking WHERE room_id = ?) AS t
+        )
+    ");
+    $stmt->bind_param("i", $room_id);
+    if (!$stmt->execute()) {
+        die("<p style='color:red;'>Error deleting renting records: " . $stmt->error . "</p>");
+    }
+    $stmt->close();
+    
+    // 4. Delete bookings that reference this room
+    $stmt = $mysqli->prepare("DELETE FROM booking WHERE room_id = ?");
+    $stmt->bind_param("i", $room_id);
+    if (!$stmt->execute()) {
+        die("<p style='color:red;'>Error deleting bookings: " . $stmt->error . "</p>");
+    }
+    $stmt->close();
+    
+    // 5. Finally, delete the room record
     $stmt = $mysqli->prepare("DELETE FROM room WHERE room_id = ?");
     $stmt->bind_param("i", $room_id);
-    $stmt->execute();
-
-    echo "<p style='color:green;'>Room deleted.</p><a href='manage_hotel.html'>Back</a>";
+    if (!$stmt->execute()) {
+        die("<p style='color:red;'>Error deleting room: " . $stmt->error . "</p>");
+    }
+    $stmt->close();
+    
+    echo "<p style='color:green;'>Room and all associated records have been deleted.</p><a href='manage_hotel.html'>Back</a>";
 }
+
+
+
 
 function updateEmployee($mysqli) {
     $emp_id = $_POST['employee_id'] ?? '';
+    // Allow updating of role and email for an employee
     $role = $_POST['role'] ?? null;
     $email = $_POST['email'] ?? null;
 
-    if (!$emp_id || (!$role && !$email)) {
-        die("<p style='color:red;'>Employee ID and at least one field required.</p>");
+    if (!$emp_id) {
+        die("<p style='color:red;'>Employee ID is required.</p>");
     }
-
+    
     $sql = "UPDATE employee SET ";
     $fields = [];
     $params = [];
     $types = "";
 
-    if ($role !== null) {
+    if ($role !== null && $role !== '') {
         $fields[] = "role = ?";
         $params[] = $role;
         $types .= "s";
     }
-    if ($email !== null) {
+    if ($email !== null && $email !== '') {
         $fields[] = "email = ?";
         $params[] = $email;
         $types .= "s";
+    }
+    
+    if (empty($fields)) {
+        die("<p style='color:red;'>At least one field must be provided to update the employee.</p>");
     }
 
     $sql .= implode(", ", $fields) . " WHERE employee_id = ?";
@@ -367,21 +478,31 @@ function updateEmployee($mysqli) {
     $types .= "i";
 
     $stmt = $mysqli->prepare($sql);
+    if (!$stmt) {
+        die("<p style='color:red;'>Prepare failed: " . $mysqli->error . "</p>");
+    }
     $stmt->bind_param($types, ...$params);
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        die("<p style='color:red;'>Error updating employee: " . $stmt->error . "</p>");
+    }
+    $stmt->close();
 
-    echo "<p style='color:green;'>Employee updated.</p><a href='manage_hotel.html'>Back</a>";
+    echo "<p style='color:green;'>Employee updated successfully.</p><a href='manage_hotel.html'>Back</a>";
 }
 
 function deleteEmployee($mysqli) {
     $emp_id = $_POST['employee_id'] ?? '';
-    if (!$emp_id) die("Missing Employee ID");
+    if (!$emp_id) {
+        die("<p style='color:red;'>Missing Employee ID</p>");
+    }
 
     $stmt = $mysqli->prepare("DELETE FROM employee WHERE employee_id = ?");
     $stmt->bind_param("i", $emp_id);
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        die("<p style='color:red;'>Error deleting employee: " . $stmt->error . "</p>");
+    }
+    $stmt->close();
 
     echo "<p style='color:green;'>Employee deleted.</p><a href='manage_hotel.html'>Back</a>";
 }
-
 ?>

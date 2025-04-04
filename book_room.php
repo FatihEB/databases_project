@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $employee_id = $_POST['employee_id'] ?? 1; 
     $checkin = $_POST['checkin'] ?? '';
     $checkout = $_POST['checkout'] ?? '';
-    $status = 'Confirmed';
+    $status = 'Pending';
 
     if ($sin && $room_id && $checkin && $checkout) {
         $check_customer = $mysqli->prepare("SELECT sin FROM customer WHERE sin = ?");
